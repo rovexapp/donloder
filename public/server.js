@@ -1,21 +1,41 @@
-<?php
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    if (isset($_FILES['appFile']) && isset($_POST['appName'])) {
-        $file = $_FILES['appFile'];
-        $appName = preg_replace('/[^a-zA-Z0-9_-]/', '_', $_POST['appName']); // تنظيف الاسم
-        $extension = pathinfo($file['name'], PATHINFO_EXTENSION);
-        $newFileName = $appName . '.' . $extension;
-        $uploadDir = 'uploads/'; // تأكد من إنشاء هذا المجلد
+const express = require('express');
+const multer = require('multer');
+const path = require('path');
+const fs = require('fs');
 
-        if (move_uploaded_file($file['tmp_name'], $uploadDir . $newFileName)) {
-            echo "تم رفع التطبيق بنجاح! <a href='$uploadDir$newFileName'>تحميل $newFileName</a>";
-        } else {
-            echo 'فشل رفع الملف.';
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// إعداد التخزين باستخدام Multer
+const storage = multer.diskStorage({
+    destination: (req, file, cb) => {
+        const dir = 'uploads';
+        if (!fs.existsSync(dir)) {
+            fs.mkdirSync(dir);
         }
-    } else {
-        echo 'يرجى اختيار ملف وادخال اسم التطبيق.';
+        cb(null, dir);
+    },
+    filename: (req, file, cb) => {
+        const appName = req.body.appName.replace(/[^a-zA-Z0-9_-]/g, '_');
+        const extension = path.extname(file.originalname);
+        cb(null, `${appName}${extension}`);
     }
-} else {
-    echo 'طلب غير صالح.';
-}
-?>
+});
+
+const upload = multer({ storage });
+
+app.use(express.static('public'));
+app.use('/uploads', express.static('uploads')); // لخدمة ملفات التحميل
+
+app.post('/upload', upload.single('appFile'), (req, res) => {
+    if (req.file) {
+        const downloadLink = `${req.protocol}://${req.get('host')}/uploads/${req.file.filename}`;
+        res.send(`تم رفع التطبيق بنجاح! <a href="${downloadLink}">تحميل ${req.file.filename}</a>`);
+    } else {
+        res.status(400).send('فشل رفع الملف.');
+    }
+});
+
+app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+});
