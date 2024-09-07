@@ -36,6 +36,7 @@ app.post('/upload', upload.single('appFile'), (req, res) => {
     }
 });
 
+// بدء الخادم
 app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
 });
