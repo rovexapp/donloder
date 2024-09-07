@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>رفع التطبيقات</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+        .container {
+            max-width: 600px;
+            margin: auto;
+            background: #fff;
+            padding: 20px;
+            border-radius: 5px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+        }
+        input[type="file"], input[type="text"] {
+            margin: 20px 0;
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>رفع تطبيق</h1>
+        <input type="text" id="appName" placeholder="أدخل اسم التطبيق">
+        <input type="file" id="appFile" accept=".apk,.ipa">
+        <button id="uploadBtn">رفع التطبيق</button>
+        <div id="message" style="margin-top: 20px;"></div>
+    </div>
+
+    <script>
+        document.getElementById('uploadBtn').addEventListener('click', function () {
+            const fileInput = document.getElementById('appFile');
+            const appNameInput = document.getElementById('appName');
+            const file = fileInput.files[0];
+            const appName = appNameInput.value.trim();
+
+            if (file && appName) {
+                const formData = new FormData();
+                formData.append('appFile', file);
+                formData.append('appName', appName);
+
+                fetch('upload.php', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.text())
+                .then(data => {
+                    document.getElementById('message').innerHTML = data;
+                })
+                .catch(error => {
+                    console.error('Error:', error);
+                });
+            } else {
+                alert('يرجى اختيار ملف وادخال اسم التطبيق');
+            }
+        });
+    </script>
+</body>
+</html>
