@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
 const upload = multer({ storage });
 
 app.use(express.static('public'));
-app.use('/uploads', express.static('uploads')); // لخدمة ملفات التحميل
+app.use('/uploads', express.static('uploads')); // خدمة الملفات المرفوعة
 
 app.post('/upload', upload.single('appFile'), (req, res) => {
     if (req.file) {
