@@ -51,7 +51,7 @@
                 formData.append('appFile', file);
                 formData.append('appName', appName);
 
-                fetch('upload.php', {
+                fetch('/upload', {
                     method: 'POST',
                     body: formData
                 })
